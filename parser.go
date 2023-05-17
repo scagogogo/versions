@@ -1,4 +1,4 @@
-package version
+package versions
 
 // VersionStringParser 把版本从字符串形式解析为struct
 type VersionStringParser struct {

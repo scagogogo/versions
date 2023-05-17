@@ -1,4 +1,4 @@
-package version
+package versions
 
 // ContainsPolicy 用于控制版本查询的时候的参数
 type ContainsPolicy int

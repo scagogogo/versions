@@ -1,4 +1,4 @@
-package version
+package versions
 
 import compare_anything "github.com/golang-infrastructure/go-compare-anything"
 

@@ -1,4 +1,4 @@
-module github.com/scagogogo/version
+module github.com/scagogogo/versions
 
 go 1.18
 

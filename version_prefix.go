@@ -1,4 +1,4 @@
-package version
+package versions
 
 // VersionPrefix 表示版本中数字部分之前的部分
 type VersionPrefix string

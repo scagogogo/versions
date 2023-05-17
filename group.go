@@ -1,4 +1,4 @@
-package version
+package versions
 
 // Group 对版本号进行分组
 func Group(versions []*Version) map[string]*VersionGroup {
