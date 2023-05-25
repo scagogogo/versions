@@ -1,6 +1,7 @@
 package versions
 
 import (
+	"github.com/golang-infrastructure/go-tuple"
 	"testing"
 )
 
@@ -11,6 +12,10 @@ func TestVersionGroup_QueryRangeVersions(t *testing.T) {
 	// 1.2.69/
 	versions := NewVersions("1.2.6", "")
 	group := NewVersionGroupFromVersions(versions)
-	group.QueryRangeVersions(NewVersion("1.2.69/ "), NewVersion(""))
+
+	start := tuple.New2[*Version, ContainsPolicy](NewVersion("1.2.69"), ContainsPolicyYes)
+	end := tuple.New2[*Version, ContainsPolicy](NewVersion("1.2.70"), ContainsPolicyYes)
+	rangeVersions := group.QueryRangeVersions(start, end)
+	t.Log(rangeVersions)
 
 }

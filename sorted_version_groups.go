@@ -1,5 +1,7 @@
 package versions
 
+import "github.com/golang-infrastructure/go-tuple"
+
 type SortedVersionGroups struct {
 
 	// 用于根据组的ID快速定位到这个组在排好序的切片中的位置
@@ -29,10 +31,10 @@ func NewSortedVersionGroups(versions []*Version) *SortedVersionGroups {
 	return groups
 }
 
-func (x *SortedVersionGroups) QueryRange(start, end *Version) []*Version {
+func (x *SortedVersionGroups) QueryRange(start, end *tuple.Tuple2[*Version, ContainsPolicy]) []*Version {
 
 	// 如果要查询的版本组都不存在的话则直接返回空即可
-	i, exists := x.groupIdToIndexMap[start.BuildGroupID()]
+	i, exists := x.groupIdToIndexMap[start.V1.BuildGroupID()]
 	if !exists {
 		return nil
 	}
@@ -40,13 +42,9 @@ func (x *SortedVersionGroups) QueryRange(start, end *Version) []*Version {
 	versions := make([]*Version, 0)
 	for i < len(x.groupSlice) {
 		g := x.groupSlice[i]
-		// 从当前的组中获取符合条件的版本号收集起来
-		versions = append(versions, g.QueryRangeVersions(start, end)...)
-		// 如果超出给定的右边界则结束遍历
-		if g.GroupVersionNumbers.CompareTo(end.VersionNumbers) > 0 {
-			break
-		}
 		i++
+
+		versions = append(versions, g.QueryRangeVersions(start, end)...)
 	}
 	return versions
 }

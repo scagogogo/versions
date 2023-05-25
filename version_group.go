@@ -2,6 +2,7 @@ package versions
 
 import (
 	compare_anything "github.com/golang-infrastructure/go-compare-anything"
+	"github.com/golang-infrastructure/go-tuple"
 	"sort"
 )
 
@@ -77,14 +78,8 @@ func (x *VersionGroup) SortVersions() []*Version {
 	return versions
 }
 
-
 // QueryRangeVersions 获取组内要求的区间内的版本
-func (x *VersionGroup) QueryRangeVersions(start, end *Version, containsEndPolicy ...ContainsPolicy) []*Version {
-
-	// 默认情况下是包含
-	if len(containsEndPolicy) == 0 {
-		containsEndPolicy = append(containsEndPolicy, ContainsEndPolicyIfSuffixEmptyAllElseLe)
-	}
+func (x *VersionGroup) QueryRangeVersions(start, end *tuple.Tuple2[*Version, ContainsPolicy]) []*Version {
 
 	// 因为这里认为同一个版本组中不会有特别多的版本，所以就不再做索引表直接跳了，如果后面有发现特殊情况再来做优化
 	sortedVersions := x.SortVersions()
@@ -92,25 +87,35 @@ func (x *VersionGroup) QueryRangeVersions(start, end *Version, containsEndPolicy
 	for _, v := range sortedVersions {
 
 		// 获取完了则结束
-		if v.CompareTo(end) > 0 {
+		if v.CompareTo(end.V1) > 0 {
 			break
 		}
 
-		// 如果是主版本大于等于开始版本
-		versionNumberIsContains := v.VersionNumbers.CompareTo(start.VersionNumbers) >= 0 && v.VersionNumbers.CompareTo(end.VersionNumbers) == 0
-		if versionNumberIsContains {
-			versions = append(versions, v)
-		} else if v.VersionNumbers.CompareTo(end.VersionNumbers) == 0 && x.isRangeContains(v, end, containsEndPolicy[0]) {
-			versions = append(versions, v)
+		// 开始区间是否符合条件
+		switch start.V2 {
+		case ContainsPolicyNone, ContainsPolicyYes:
+			if v.CompareTo(start.V1) < 0 {
+				continue
+			}
+		case ContainsPolicyNo:
+			if v.CompareTo(start.V1) <= 0 {
+				continue
+			}
 		}
+
+		// 结束区间是否符合条件
+		switch end.V2 {
+		case ContainsPolicyNone, ContainsPolicyYes:
+			if v.CompareTo(end.V1) > 0 {
+				continue
+			}
+		case ContainsPolicyNo:
+			if v.CompareTo(start.V1) >= 0 {
+				continue
+			}
+		}
+
+		versions = append(versions, v)
 	}
 	return versions
-}
-
-func (x *VersionGroup) isRangeContains(needJudgeVersion, rangeEndVersion *Version, policy ContainsPolicy) bool {
-	// 根据不同的包含策略进行
-	switch policy {
-	case ContainsPolicyNoneSingle:
-
-	}
 }
