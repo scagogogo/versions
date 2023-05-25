@@ -34,9 +34,14 @@ func NewSortedVersionGroups(versions []*Version) *SortedVersionGroups {
 func (x *SortedVersionGroups) QueryRange(start, end *tuple.Tuple2[*Version, ContainsPolicy]) []*Version {
 
 	// 如果要查询的版本组都不存在的话则直接返回空即可
-	i, exists := x.groupIdToIndexMap[start.V1.BuildGroupID()]
-	if !exists {
-		return nil
+	var i int
+	if start.V1.Raw != "0" {
+		// 仅当开始的版本不为0的时候才进行跳，否则认为是从最开始遍历
+		var exists bool
+		i, exists = x.groupIdToIndexMap[start.V1.BuildGroupID()]
+		if !exists {
+			return nil
+		}
 	}
 
 	versions := make([]*Version, 0)
