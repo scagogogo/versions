@@ -110,7 +110,7 @@ func (x *VersionGroup) QueryRangeVersions(start, end *tuple.Tuple2[*Version, Con
 				continue
 			}
 		case ContainsPolicyNo:
-			if v.CompareTo(start.V1) >= 0 {
+			if v.CompareTo(end.V1) >= 0 {
 				continue
 			}
 		}
