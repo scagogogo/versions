@@ -30,3 +30,19 @@ func ReadVersionsFromFile(filepath string) ([]*Version, error) {
 	}
 	return versions, nil
 }
+
+func ReadVersionsStringFromFile(filepath string) ([]string, error) {
+	bytes, err := os.ReadFile(filepath)
+	if err != nil {
+		return nil, err
+	}
+	versions := make([]string, 0)
+	for _, line := range strings.Split(string(bytes), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		versions = append(versions, line)
+	}
+	return versions, nil
+}

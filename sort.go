@@ -4,6 +4,17 @@ import (
 	"sort"
 )
 
+// SortVersionStringSlice 对字符串形式的版本数组排序，返回值也是字符串形式的
+func SortVersionStringSlice(versionStringSlice []string) []string {
+	versions := NewVersions(versionStringSlice...)
+	slice := SortVersionSlice(versions)
+	sortedVersionStringSlice := make([]string, 0)
+	for _, v := range slice {
+		sortedVersionStringSlice = append(sortedVersionStringSlice, v.Raw)
+	}
+	return sortedVersionStringSlice
+}
+
 // SortVersionSlice 对版本号排序
 func SortVersionSlice(versions []*Version) []*Version {
 

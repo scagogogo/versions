@@ -29,3 +29,15 @@ func TestSortVersionSlice(t *testing.T) {
 	}
 
 }
+
+func TestSortVersionStringSlice(t *testing.T) {
+	// 读取测试文件中的版本号
+	versions, err := ReadVersionsStringFromFile("./test_data/fast_json_versions.txt")
+	assert.Nil(t, err)
+
+	shuffle.Shuffle(versions)
+	versions = SortVersionStringSlice(versions)
+	for i := 1; i < len(versions); i++ {
+		assert.True(t, NewVersion(versions[i]).CompareTo(NewVersion(versions[i-1])) >= 0)
+	}
+}

@@ -1,5 +1,7 @@
 package versions
 
+// TODO 2023-5-31 12:13:27 一次解析多条版本，让它们之间互相印证
+
 // VersionStringParser 把版本从字符串形式解析为struct
 type VersionStringParser struct {
 
@@ -43,6 +45,8 @@ func (x *VersionStringParser) Parse() *Version {
 
 // 读取版本中的前缀部分，比如对于版本号 v0.0.1，则prefix为 v
 func (x *VersionStringParser) readVersionPrefix() {
+
+	// TODO 2023-5-31 12:14:00 使用正则来定位版本号数字的位置，如果版本号数字有多个的话则选择最长的一个，如果一样长则选择靠前的那个
 
 	// 一直读取，直到读取到版本号中数字部分的分隔符
 	for x.i < len(x.versionRunes) {
