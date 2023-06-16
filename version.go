@@ -63,26 +63,49 @@ func (x *Version) BuildGroupID() string {
 	return x.VersionNumbers.BuildGroupID()
 }
 
+// CompareTo 比较两个版本号是否相等
 func (x *Version) CompareTo(target *Version) int {
 
-	// 1. 先按照主版本号排序
-	r := x.VersionNumbers.CompareTo(target.VersionNumbers)
-	if r != 0 {
-		return r
-	}
-
-	// 2. 然后按照发布时间排序
-	r2 := target.PublicTime.UnixMilli() - x.PublicTime.UnixMilli()
-	if r2 != 0 {
-		if r2 > 0 {
-			return 1
-		} else {
-			return -1
+	// 1. 先按照主版本号排序，仅当两个的主版本号都存在的时候才会进行比较，它们的长度不必相等，但是不能有为空的
+	if len(x.VersionNumbers) != 0 && len(target.VersionNumbers) != 0 {
+		r := x.VersionNumbers.CompareTo(target.VersionNumbers)
+		if r != 0 {
+			return r
 		}
 	}
 
-	// 3. 然后按照后缀的字典序排序
-	return x.Suffix.CompareTo(target.Suffix)
+	// 2. 然后按照发布时间排序
+	if !target.PublicTime.IsZero() && !x.PublicTime.IsZero() {
+		r2 := x.PublicTime.UnixMilli() - target.PublicTime.UnixMilli()
+		if r2 != 0 {
+			// 不做类型转换是为了避免特殊情况下因为类型转换而丢失精度结果错误，而采用比较的方式
+			if r2 > 0 {
+				return 1
+			} else {
+				return -1
+			}
+		}
+	}
+
+	// 3. 然后按照后缀的字典序排序，加入有后缀的话
+	if x.Suffix != EmptyVersionSuffix && target.Suffix != EmptyVersionSuffix {
+		r := x.Suffix.CompareTo(target.Suffix)
+		if r != 0 {
+			return r
+		}
+	}
+
+	// 4. 最后实在不行就是比较原始版本号的字典序吧
+	if x.Raw == target.Raw {
+		return 0
+	} else if x.Raw < target.Raw {
+		return -1
+	} else if x.Raw > target.Raw {
+		return 1
+	}
+
+	// unreachable
+	return 0
 }
 
 func (x *Version) String() string {
