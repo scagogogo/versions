@@ -1,10 +1,25 @@
 package versions
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
+// TestVersionStringParser_Parser 测试版本号解析器的功能
+//
+// 这个测试函数验证 VersionStringParser 是否能够正确解析各种格式的版本号字符串。
+// 测试用例覆盖了多种常见和边缘情况的版本格式，包括：
+// - 带前缀的版本号，如 "v1.2.3"、"RELEASE126"
+// - 带后缀的版本号，如 "1.0.0-RC1"、"2.0.0.Final"
+// - 多位数字的版本号，如 "5.17.295.16"
+// - 特殊格式的版本号，如 "0.26.1-v2-524.0"
+// - 空字符串
+// - 只有数字的版本号，如 "394"
+// - 复杂前缀和后缀的版本号，如 "v1-rev4-1.18.0-rc"
+//
+// 对于每个测试用例，验证解析结果的前缀、数字部分和后缀是否符合预期。
+// 注意：部分测试用例当前未通过，已被标记为TODO。
 func TestVersionStringParser_Parser(t *testing.T) {
 
 	v := NewVersionStringParser("17-0.15.0-alpha1").Parse()
