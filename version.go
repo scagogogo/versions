@@ -147,9 +147,9 @@ func NewVersions(versionStringSlice ...string) []*Version {
 //	if !version.IsValid() {
 //	    fmt.Println("无效的版本号")
 //	}
-func (x *Version) IsValid() bool {
-	// 只有当解析到了版本号数字的时候才认为是有效的版本号，其它情况认为是无效的版本
-	return len(x.VersionNumbers) > 0
+func (v *Version) IsValid() bool {
+	// 版本号数组不为空，则表示为有效版本
+	return len(v.VersionNumbers) > 0
 }
 
 // BuildGroupID 构造版本所属的组的ID
