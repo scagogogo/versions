@@ -28,9 +28,21 @@ func VisualizeVersions(versions []*Version, w io.Writer, maxItems int) {
 	// 创建有序版本组
 	sortedGroups := NewSortedVersionGroups(versions)
 
+	// 按主版本号分组版本
+	majorGroups := make(map[string][]*Version)
+	for _, v := range versions {
+		if len(v.VersionNumbers) > 0 {
+			majorKey := fmt.Sprintf("%d", v.VersionNumbers[0])
+			if _, exists := majorGroups[majorKey]; !exists {
+				majorGroups[majorKey] = make([]*Version, 0)
+			}
+			majorGroups[majorKey] = append(majorGroups[majorKey], v)
+		}
+	}
+
 	// 写入总览信息
 	fmt.Fprintf(w, "版本总数: %d\n", len(versions))
-	fmt.Fprintf(w, "版本组数: %d\n\n", len(groups))
+	fmt.Fprintf(w, "版本组数: %d\n\n", len(majorGroups))
 
 	// 可视化每个版本组
 	for _, groupID := range sortedGroups.GroupIDs() {
@@ -92,10 +104,6 @@ func VisualizeVersionGroups(versions []*Version, w io.Writer) {
 	// 对版本进行分组
 	groups := Group(versions)
 
-	// 写入总览信息
-	fmt.Fprintf(w, "版本总数: %d\n", len(versions))
-	fmt.Fprintf(w, "版本组数: %d\n\n", len(groups))
-
 	// 分析主版本号的分布
 	// 创建按主版本分组的索引
 	majorVersions := make(map[string][]string)
@@ -117,6 +125,10 @@ func VisualizeVersionGroups(versions []*Version, w io.Writer) {
 		}
 		majorVersions[major] = append(majorVersions[major], groupID)
 	}
+
+	// 写入总览信息
+	fmt.Fprintf(w, "版本总数: %d\n", len(versions))
+	fmt.Fprintf(w, "版本组数: %d\n\n", len(majorVersions))
 
 	// 获取所有主版本号并排序
 	majorKeys := make([]string, 0, len(majorVersions))
