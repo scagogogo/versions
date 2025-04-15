@@ -27,11 +27,4 @@ jobs:
       - name: Test Coverage
         run: |
           go test -coverprofile=coverage.out ./...
-          go tool cover -func=coverage.out
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage-report
-          path: coverage.out
-          if-no-files-found: error 
+          go tool cover -func=coverage.out 
