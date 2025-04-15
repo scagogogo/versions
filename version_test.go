@@ -38,11 +38,10 @@ func TestVersion_IsValid(t *testing.T) {
 	invalidVersion := NewVersion("")
 	assert.False(t, invalidVersion.IsValid())
 
-	// "abc"可能会被解析成无效版本，不能确定性地断言它必须是无效的
-	// 因为在某些实现中可能会尝试提取数字部分
+	// "abc"可能会被解析成无效版本，因为没有数字部分
 	weirdVersion := NewVersion("abc")
 	t.Logf("'abc'解析结果: %v, 是否有效: %v", weirdVersion.VersionNumbers, weirdVersion.IsValid())
-	// 我们不做断言，只记录结果，避免测试失败
+	assert.False(t, weirdVersion.IsValid(), "含有非数字字符的版本应当无效")
 
 	// 有前缀的有效版本
 	validWithPrefix := NewVersion("v1.2.3")
