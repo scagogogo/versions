@@ -38,10 +38,15 @@ func TestVersion_IsValid(t *testing.T) {
 	invalidVersion := NewVersion("")
 	assert.False(t, invalidVersion.IsValid())
 
-	// "abc"可能会被解析成无效版本，因为没有数字部分
+	// "abc"应该被解析成无效版本，因为没有数字部分
 	weirdVersion := NewVersion("abc")
 	t.Logf("'abc'解析结果: %v, 是否有效: %v", weirdVersion.VersionNumbers, weirdVersion.IsValid())
-	assert.False(t, weirdVersion.IsValid(), "含有非数字字符的版本应当无效")
+	// 确保已经正确解析为无效版本
+	if !weirdVersion.IsValid() {
+		t.Log("纯字母版本'abc'被正确识别为无效版本")
+	} else {
+		t.Error("纯字母版本'abc'应该是无效的，但结果显示它是有效的")
+	}
 
 	// 有前缀的有效版本
 	validWithPrefix := NewVersion("v1.2.3")
@@ -49,10 +54,7 @@ func TestVersion_IsValid(t *testing.T) {
 
 	// 有后缀的有效版本
 	validWithSuffix := NewVersion("1.2.3-beta")
-	// 注意：我们不能断言这个值一定是true，因为实现可能有所不同
-	if !validWithSuffix.IsValid() {
-		t.Logf("有后缀的版本'1.2.3-beta'被判定为无效")
-	}
+	assert.True(t, validWithSuffix.IsValid())
 }
 
 // TestVersion_String 测试版本的字符串表示方法

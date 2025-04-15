@@ -255,4 +255,48 @@ func TestVersionStringParser_Parser(t *testing.T) {
 	//assert.Equal(t, VersionNumbers([]int{}), v.VersionNumbers)
 	//assert.Equal(t, EmptyVersionSuffix, v.Suffix)
 
+	// 测试纯字母版本
+	v = NewVersionStringParser("abc").Parse()
+	assert.Equal(t, "abc", v.Raw)
+	assert.Equal(t, VersionPrefix("abc"), v.Prefix)
+	assert.Empty(t, v.VersionNumbers)
+	assert.False(t, v.IsValid(), "纯字母版本应该被视为无效版本")
+
+}
+
+// TestVersionStringParser_ReadVersionSuffix 测试版本后缀解析功能
+func TestVersionStringParser_ReadVersionSuffix(t *testing.T) {
+	// 创建一个解析器实例
+	parser := &VersionStringParser{}
+
+	// 测试正常情况
+	suffix := parser.readVersionSuffix("1.2.3-beta", "1.2.3")
+	assert.Equal(t, "-beta", suffix)
+
+	// 测试版本号数字部分为空的情况
+	suffix = parser.readVersionSuffix("abc", "")
+	assert.Equal(t, "", suffix)
+
+	// 测试版本号后无后缀的情况
+	suffix = parser.readVersionSuffix("1.2.3", "1.2.3")
+	assert.Equal(t, "", suffix)
+
+	// 测试复杂后缀
+	suffix = parser.readVersionSuffix("1.2.3-beta.1-rc2", "1.2.3")
+	assert.Equal(t, "-beta.1-rc2", suffix)
+}
+
+// TestPrefixedVersionParsing 测试带前缀的版本解析
+func TestPrefixedVersionParsing(t *testing.T) {
+	// 测试带前缀的简单版本 "v1.2.3"
+	v := NewVersionStringParser("v1.2.3").Parse()
+	assert.Equal(t, "v1.2.3", v.Raw)
+	assert.Equal(t, VersionPrefix("v"), v.Prefix)
+	assert.Equal(t, VersionNumbers([]int{1, 2, 3}), v.VersionNumbers)
+	assert.Equal(t, EmptyVersionSuffix, v.Suffix)
+	assert.True(t, v.IsValid())
+
+	// 输出详细的解析结果
+	t.Logf("v1.2.3解析结果: 前缀=%s, 版本号=%v, 后缀=%s, 是否有效=%v",
+		v.Prefix, v.VersionNumbers, v.Suffix, v.IsValid())
 }
