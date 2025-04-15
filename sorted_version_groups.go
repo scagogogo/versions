@@ -77,6 +77,29 @@ func NewSortedVersionGroups(versions []*Version) *SortedVersionGroups {
 	return groups
 }
 
+// GroupIDs 返回所有版本组的ID列表
+//
+// 该方法返回按顺序排列的版本组ID列表。
+// 返回的ID列表与内部的版本组切片顺序一致，确保保持排序状态。
+//
+// 返回:
+//   - []string: 含有所有版本组ID的字符串切片
+//
+// 使用示例:
+//
+//	sortedGroups := versions.NewSortedVersionGroups(allVersions)
+//	groupIDs := sortedGroups.GroupIDs()
+//	for _, id := range groupIDs {
+//	    fmt.Printf("版本组: %s\n", id)
+//	}
+func (x *SortedVersionGroups) GroupIDs() []string {
+	result := make([]string, len(x.groupSlice))
+	for i, group := range x.groupSlice {
+		result[i] = group.ID()
+	}
+	return result
+}
+
 // QueryRange 在有序版本组中查询指定范围内的版本
 //
 // 该方法根据给定的起始和结束版本范围，返回所有符合条件的版本对象数组。

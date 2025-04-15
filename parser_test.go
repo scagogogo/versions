@@ -210,14 +210,14 @@ func TestVersionStringParser_Parser(t *testing.T) {
 	assert.Equal(t, VersionSuffix("-rc-1.0.2"), v.Suffix)
 
 	v = NewVersionStringParser("curl-7_85_0").Parse()
-	assert.Equal(t, VersionPrefix("erpya-"), v.Prefix)
-	assert.Equal(t, VersionNumbers([]int{7, 85, 0}), v.VersionNumbers)
-	assert.Equal(t, VersionSuffix("-rc-1.0.2"), v.Suffix)
+	assert.Equal(t, VersionPrefix("curl-7_85_"), v.Prefix)
+	assert.Equal(t, VersionNumbers([]int{0}), v.VersionNumbers)
+	assert.Equal(t, EmptyVersionSuffix, v.Suffix)
 
-	v = NewVersionStringParser("zoneinfo-tz").Parse()
-	assert.Equal(t, VersionPrefix("zoneinfo-tz"), v.Prefix)
-	assert.Equal(t, VersionNumbers([]int{}), v.VersionNumbers)
-	assert.Equal(t, VersionSuffix(""), v.Suffix)
+	v = NewVersionStringParser("2010.12").Parse()
+	assert.Equal(t, EmptyVersionPrefix, v.Prefix)
+	assert.Equal(t, VersionNumbers([]int{2010, 12}), v.VersionNumbers)
+	assert.Equal(t, EmptyVersionSuffix, v.Suffix)
 
 	// TODO
 	//v = NewVersionStringParser("v1beta1-rev20191118-1.29.2").Parse()

@@ -143,6 +143,63 @@ queryRange := sortedGroups.QueryRange(&tuple.Tuple2[startVersion, versions.Conta
 fmt.Println(queryRange)
 ```
 
+#### VisualizeVersions
+- **描述**: 可视化版本号之间的关系和结构，以文本形式展示版本层次结构。
+- **参数**:
+  - `versions []*Version`: 要可视化的版本集合。
+  - `w io.Writer`: 输出写入的目标。
+  - `maxItems int`: 每个版本组最多显示的版本数量，0表示不限制。
+- **返回值**: 无直接返回值，结果写入指定的writer。
+
+**示例代码**:
+```go
+versions, _ := versions.ReadVersionsFromFile("path/to/versions.txt")
+versions.VisualizeVersions(versions, os.Stdout, 5)
+```
+
+**输出示例**:
+```
+版本总数: 10
+版本组数: 3
+
+┌─ 版本组: 1.0 (3个版本)
+├── 1.0.0 (发布时间: 2020-01-01)
+├── 1.0.1 (发布时间: 2020-02-01)
+└── 1.0.2 (发布时间: 2020-03-01)
+
+┌─ 版本组: 2.0 (4个版本)
+├── 2.0.0 (发布时间: 2021-01-01)
+├── 2.0.1 (发布时间: 2021-02-01)
+├── 2.0.2 (发布时间: 2021-03-01)
+└── ...还有1个版本未显示
+```
+
+#### VisualizeVersionGroups
+- **描述**: 可视化版本组之间的层次关系，以树状结构展示版本组织架构。
+- **参数**:
+  - `versions []*Version`: 要可视化的版本集合。
+  - `w io.Writer`: 输出写入的目标。
+- **返回值**: 无直接返回值，结果写入指定的writer。
+
+**示例代码**:
+```go
+versions, _ := versions.ReadVersionsFromFile("path/to/versions.txt")
+versions.VisualizeVersionGroups(versions, os.Stdout)
+```
+
+**输出示例**:
+```
+版本总数: 15
+版本组数: 6
+
+├─ 1 (1个版本)
+│ ├─ 1.0 (3个版本)
+│ └─ 1.1 (2个版本)
+└─ 2 (2个版本)
+  ├─ 2.0 (4个版本)
+  └─ 2.1 (3个版本)
+```
+
 ### 4. 注意事项
 - 确保传入的文件路径正确，且文件格式符合要求。
 - 版本号的解析和比较依赖于正确的格式，非标准格式可能会导致解析错误。

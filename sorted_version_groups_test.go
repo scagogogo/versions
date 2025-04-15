@@ -29,7 +29,7 @@ import (
 // - de.tum.in.ase_artemis-java-test-sandbox.txt
 func TestSortedVersionGroups_QueryRange(t *testing.T) {
 
-	// fastjson
+	// 1. 基本范围查询测试（使用fastjson数据集）
 	versions, err := ReadVersionsFromFile("./test_data/fast_json_versions.txt")
 	assert.Nil(t, err)
 
@@ -44,6 +44,72 @@ func TestSortedVersionGroups_QueryRange(t *testing.T) {
 	for _, v := range queryRange {
 		fmt.Println(v.Raw)
 	}
+
+	// 2. 测试构造版本数据集，增加覆盖度
+	customTestVersions := []*Version{
+		NewVersion("1.0.0"),
+		NewVersion("1.1.0"),
+		NewVersion("1.2.0"),
+		NewVersion("2.0.0"),
+		NewVersion("2.1.0"),
+	}
+	customGroups := NewSortedVersionGroups(customTestVersions)
+
+	// 2.1 测试版本组不存在的情况（如查询3.0.0之前的版本，但实际没有3.0.0）
+	nonExistStart := tuple.New2[*Version, ContainsPolicy](NewVersion("3.0.0"), ContainsPolicyYes)
+	nonExistEnd := tuple.New2[*Version, ContainsPolicy](NewVersion("4.0.0"), ContainsPolicyYes)
+	nonExistResult := customGroups.QueryRange(nonExistStart, nonExistEnd)
+	assert.Empty(t, nonExistResult) // 结果应该为空
+
+	// 2.2 测试版本"0"特殊情况（表示从最小版本开始）
+	zeroStart := tuple.New2[*Version, ContainsPolicy](NewVersion("0"), ContainsPolicyYes)
+	midEnd := tuple.New2[*Version, ContainsPolicy](NewVersion("1.2.0"), ContainsPolicyYes)
+	zeroResult := customGroups.QueryRange(zeroStart, midEnd)
+	// 检查结果中包含的版本号
+	var resultVersions []string
+	for _, v := range zeroResult {
+		resultVersions = append(resultVersions, v.Raw)
+	}
+	t.Logf("zeroResult包含的版本: %v", resultVersions)
+	// 实际结果是否包含预期版本
+	assert.Contains(t, resultVersions, "1.0.0")
+	assert.Contains(t, resultVersions, "1.1.0")
+	assert.Contains(t, resultVersions, "1.2.0")
+
+	// 2.3 测试不同的包含策略组合
+	// 2.3.1 起始版本包含，结束版本不包含
+	includeStartExcludeEnd := customGroups.QueryRange(
+		tuple.New2[*Version, ContainsPolicy](NewVersion("1.0.0"), ContainsPolicyYes),
+		tuple.New2[*Version, ContainsPolicy](NewVersion("2.0.0"), ContainsPolicyNo),
+	)
+	// 检查结果中包含的版本号
+	var includeStartResults []string
+	for _, v := range includeStartExcludeEnd {
+		includeStartResults = append(includeStartResults, v.Raw)
+	}
+	t.Logf("includeStartExcludeEnd包含的版本: %v", includeStartResults)
+	// 验证包含预期版本，不包含意外版本
+	assert.Contains(t, includeStartResults, "1.0.0")
+	assert.Contains(t, includeStartResults, "1.1.0")
+	assert.Contains(t, includeStartResults, "1.2.0")
+	assert.NotContains(t, includeStartResults, "2.0.0")
+
+	// 2.3.2 起始版本不包含，结束版本包含
+	excludeStartIncludeEnd := customGroups.QueryRange(
+		tuple.New2[*Version, ContainsPolicy](NewVersion("1.0.0"), ContainsPolicyNo),
+		tuple.New2[*Version, ContainsPolicy](NewVersion("2.0.0"), ContainsPolicyYes),
+	)
+	// 检查结果中包含的版本号
+	var excludeStartResults []string
+	for _, v := range excludeStartIncludeEnd {
+		excludeStartResults = append(excludeStartResults, v.Raw)
+	}
+	t.Logf("excludeStartIncludeEnd包含的版本: %v", excludeStartResults)
+	// 验证包含预期版本，不包含意外版本
+	assert.NotContains(t, excludeStartResults, "1.0.0")
+	assert.Contains(t, excludeStartResults, "1.1.0")
+	assert.Contains(t, excludeStartResults, "1.2.0")
+	assert.Contains(t, excludeStartResults, "2.0.0")
 
 	// 以下是其他数据集的测试代码，目前已注释掉
 	// 可以取消注释以测试不同数据集上的范围查询功能
