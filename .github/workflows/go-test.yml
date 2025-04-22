@@ -28,3 +28,14 @@ jobs:
         run: |
           go test -coverprofile=coverage.out ./...
           go tool cover -func=coverage.out 
+          
+      - name: Run Examples
+        run: |
+          echo "运行所有示例代码..."
+          # 查找并运行所有示例目录中的main.go文件
+          for example_dir in examples/*/; do
+            if [ -f "${example_dir}main.go" ]; then
+              echo "运行示例: ${example_dir}"
+              go run ${example_dir}main.go
+            fi
+          done 
