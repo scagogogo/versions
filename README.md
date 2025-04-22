@@ -1,214 +1,186 @@
-## 添加依赖
+# Versions - Go语言版本管理库
+
+[![Go Tests](https://github.com/scagogogo/versions/actions/workflows/go-test.yml/badge.svg)](https://github.com/scagogogo/versions/actions/workflows/go-test.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/scagogogo/versions)](https://goreportcard.com/report/github.com/scagogogo/versions)
+[![GoDoc](https://godoc.org/github.com/scagogogo/versions?status.svg)](https://godoc.org/github.com/scagogogo/versions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+`versions` 是一个功能强大的 Go 语言库，专门用于解析、比较、排序和管理软件版本号。支持语义化版本、前缀、后缀和版本分组，让您的版本管理更加简单高效。
+
+## 📋 目录
+
+- [特性](#-特性)
+- [安装](#-安装)
+- [快速开始](#-快速开始)
+- [详细文档](#-详细文档)
+  - [数据类型和常量](#数据类型和常量)
+  - [主要函数](#主要函数)
+- [使用示例](#-使用示例)
+- [注意事项](#-注意事项)
+- [许可证](#-许可证)
+
+## ✨ 特性
+
+- **全面的版本支持**: 支持标准语义化版本格式（如 `1.2.3`）和多种变体（如 `v1.2.3`、`1.2.3-beta` 等）
+- **灵活的版本解析**: 自动识别前缀、版本号和后缀
+- **智能版本比较**: 基于标准语义化版本规则进行版本号比较
+- **版本分组和排序**: 按主版本号、次版本号分组，并提供多种排序方式
+- **范围查询**: 支持查询指定版本范围内的所有版本
+- **版本可视化**: 提供文本方式展示版本之间的层次关系
+- **文件支持**: 直接从文件中读取和处理版本号
+- **无外部依赖**: 核心功能无需额外依赖
+
+## 📦 安装
+
+使用 `go get` 命令安装:
 
 ```bash
 go get -u github.com/scagogogo/versions
 ```
 
-## versions API文档
+## 🚀 快速开始
 
-### 1. 概述
-`versions` 包是一个Go语言库，旨在处理软件版本号。它提供了从文件读取版本号、解析、比较、排序以及查询特定版本范围内的功能。
+以下是一个简单的示例，展示如何使用 `versions` 库解析和比较版本号:
 
-### 2. 数据类型和常量
-
-#### Version
-- **属性**:
-  - `Raw` string: 原始版本号字符串。
-  - `PublicTime` time.Time: 版本发布的时间。
-  - `VersionNumbers` VersionNumbers: 版本号中的数字部分。
-  - `Prefix` VersionPrefix: 版本号数字部分之前的前缀。
-  - `Suffix` VersionSuffix: 版本号数字部分之后的后缀。
-
-#### VersionNumbers
-- **属性**:
-  - 一个整数切片，表示版本号中的数字部分。
-
-#### VersionPrefix
-- **属性**:
-  - 一个字符串，表示版本号数字部分之前的前缀。
-
-#### VersionSuffix
-- **属性**:
-  - 一个字符串，表示版本号数字部分之后的后缀。
-
-#### ContainsPolicy
-- **说明**: 用于控制版本查询时的参数。
-  - `ContainsPolicyNone`: 未指定。
-  - `ContainsPolicyYes`: 包含。
-  - `ContainsPolicyNo`: 不包含。
-
-### 3. 函数
-
-#### ReadVersionsFromFile
-- **描述**: 从文件中读取版本号，一行一个版本号，返回解析后的版本切片。
-- **参数**:
-  - `filepath string`: 文件路径。
-- **返回值**:
-  - `[]*Version`: 解析后的版本号切片。
-  - `error`: 错误信息。
-
-**示例代码**:
 ```go
+package main
+
+import (
+    "fmt"
+    "github.com/scagogogo/versions"
+)
+
+func main() {
+    // 创建版本对象
+    v1 := versions.NewVersion("1.2.3")
+    v2 := versions.NewVersion("v1.3.0")
+    
+    // 比较版本大小
+    if v1.CompareTo(v2) < 0 {
+        fmt.Printf("%s 小于 %s\n", v1.Raw, v2.Raw)
+    }
+    
+    // 查看版本组成部分
+    fmt.Printf("版本号数字: %v\n", v1.VersionNumbers)
+    fmt.Printf("前缀: %s\n", v2.Prefix)  // 输出: "v"
+    
+    // 排序版本号
+    versionList := []*versions.Version{
+        versions.NewVersion("2.0.0"),
+        versions.NewVersion("1.0.0"),
+        versions.NewVersion("1.10.0"),
+    }
+    sortedVersions := versions.SortVersionSlice(versionList)
+    for _, v := range sortedVersions {
+        fmt.Println(v.Raw)  // 输出: 1.0.0, 1.10.0, 2.0.0
+    }
+}
+```
+
+## 📚 详细文档
+
+### 数据类型和常量
+
+| 类型 | 描述 |
+|------|-----|
+| `Version` | 表示一个版本号，包含原始字符串、版本号数字、前缀、后缀和发布时间 |
+| `VersionNumbers` | 整数切片，表示版本号中的数字部分 |
+| `VersionPrefix` | 字符串，表示版本号数字部分之前的前缀 |
+| `VersionSuffix` | 字符串，表示版本号数字部分之后的后缀 |
+| `ContainsPolicy` | 用于控制版本查询时的包含策略（包含、不包含） |
+| `VersionGroup` | 版本组，包含相同主版本号的一组版本 |
+| `SortedVersionGroups` | 有序的版本组集合，便于范围查询 |
+
+### 主要函数
+
+#### 版本解析与创建
+
+```go
+// 创建版本对象
+version := versions.NewVersion("1.2.3")
+
+// 带错误检查的版本创建
+version, err := versions.NewVersionE("1.2.3")
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+#### 从文件读取版本
+
+```go
+// 读取版本号对象
 versions, err := versions.ReadVersionsFromFile("path/to/versions.txt")
 if err != nil {
     log.Fatal(err)
 }
-fmt.Println(versions)
-```
 
-#### ReadVersionsStringFromFile
-- **描述**: 从文件中读取版本号，一行一个版本号，返回原始字符串切片。
-- **参数**:
-  - `filepath string`: 文件路径。
-- **返回值**:
-  - `[]string`: 原始版本号字符串切片。
-  - `error`: 错误信息。
-
-**示例代码**:
-```go
+// 读取版本号字符串
 versionStrings, err := versions.ReadVersionsStringFromFile("path/to/versions.txt")
 if err != nil {
     log.Fatal(err)
 }
-fmt.Println(versionStrings)
 ```
 
-#### Group
-- **描述**: 对版本号进行分组。
-- **参数**:
-  - `versions []*Version`: 版本号切片。
-- **返回值**:
-  - `map[string]*VersionGroup`: 版本号分组映射。
+#### 版本分组与排序
 
-**示例代码**:
 ```go
-groupedVersions := versions.Group(versions)
-for _, group := range groupedVersions {
-    fmt.Println(group.Versions())
-}
+// 版本分组
+groupedVersions := versions.Group(versionList)
+
+// 字符串版本排序
+sortedStrings := versions.SortVersionStringSlice(versionStrings)
+
+// 版本对象排序
+sortedVersions := versions.SortVersionSlice(versionList)
 ```
 
-#### SortVersionStringSlice
-- **描述**: 对字符串形式的版本数组排序，返回值也是字符串形式的。
-- **参数**:
-  - `versionStringSlice []string`: 版本号字符串切片。
-- **返回值**:
-  - `[]string`: 排序后的版本号字符串切片。
+#### 版本范围查询
 
-**示例代码**:
 ```go
-sortedVersions := versions.SortVersionStringSlice(versionStrings)
-fmt.Println(sortedVersions)
-```
+// 创建有序版本组
+sortedGroups := versions.NewSortedVersionGroups(versionList)
 
-#### SortVersionSlice
-- **描述**: 对版本号切片进行排序。
-- **参数**:
-  - `versions []*Version`: 版本号切片。
-- **返回值**:
-  - `[]*Version`: 排序后的版本号切片。
-
-**示例代码**:
-```go
-sortedVersions := versions.SortVersionSlice(versions)
-fmt.Println(sortedVersions)
-```
-
-#### NewSortedVersionGroups
-- **描述**: 为版本号创建有序的分组。
-- **参数**:
-  - `versions []*Version`: 版本号切片。
-- **返回值**:
-  - `*SortedVersionGroups`: 有序的版本号分组。
-
-**示例代码**:
-```go
-sortedGroups := versions.NewSortedVersionGroups(versions)
-fmt.Println(sortedGroups.groupSlice)
-```
-
-#### QueryRange
-- **描述**: 查询指定范围内的版本号。
-- **参数**:
-  - `start *tuple.Tuple2[*Version, ContainsPolicy]`: 开始版本号和包含策略。
-  - `end *tuple.Tuple2[*Version, ContainsPolicy]`: 结束版本号和包含策略。
-- **返回值**:
-  - `[]*Version`: 查询范围内的版本号切片。
-
-**示例代码**:
-```go
+// 定义查询范围和包含策略
 startVersion := versions.NewVersion("1.0.0")
 endVersion := versions.NewVersion("2.0.0")
-queryRange := sortedGroups.QueryRange(&tuple.Tuple2[startVersion, versions.ContainsPolicyYes], &tuple.Tuple2[endVersion, versions.ContainsPolicyNo])
-fmt.Println(queryRange)
+startTuple := tuple.New2[*versions.Version, versions.ContainsPolicy](
+    startVersion, versions.ContainsPolicyYes) // 包含起始版本
+endTuple := tuple.New2[*versions.Version, versions.ContainsPolicy](
+    endVersion, versions.ContainsPolicyNo)   // 不包含结束版本
+
+// 执行范围查询
+rangeResult := sortedGroups.QueryRange(startTuple, endTuple)
 ```
 
-#### VisualizeVersions
-- **描述**: 可视化版本号之间的关系和结构，以文本形式展示版本层次结构。
-- **参数**:
-  - `versions []*Version`: 要可视化的版本集合。
-  - `w io.Writer`: 输出写入的目标。
-  - `maxItems int`: 每个版本组最多显示的版本数量，0表示不限制。
-- **返回值**: 无直接返回值，结果写入指定的writer。
+#### 版本可视化
 
-**示例代码**:
 ```go
-versions, _ := versions.ReadVersionsFromFile("path/to/versions.txt")
-versions.VisualizeVersions(versions, os.Stdout, 5)
+// 可视化所有版本（每组显示最多5个版本）
+versions.VisualizeVersions(versionList, os.Stdout, 5)
+
+// 可视化版本组层次结构
+versions.VisualizeVersionGroups(versionList, os.Stdout)
 ```
 
-**输出示例**:
-```
-版本总数: 10
-版本组数: 3
+## 🔍 使用示例
 
-┌─ 版本组: 1.0 (3个版本)
-├── 1.0.0 (发布时间: 2020-01-01)
-├── 1.0.1 (发布时间: 2020-02-01)
-└── 1.0.2 (发布时间: 2020-03-01)
+查看 [`examples`](./examples) 目录获取更多详细示例:
 
-┌─ 版本组: 2.0 (4个版本)
-├── 2.0.0 (发布时间: 2021-01-01)
-├── 2.0.1 (发布时间: 2021-02-01)
-├── 2.0.2 (发布时间: 2021-03-01)
-└── ...还有1个版本未显示
-```
+- [基本版本解析](./examples/01_basic_version_parsing/main.go) - 如何解析和比较不同格式的版本号
+- [从文件读取版本](./examples/02_reading_versions_from_file/main.go) - 如何从文件中读取版本信息
+- [版本排序](./examples/03_version_sorting/main.go) - 如何对版本号进行排序
+- [版本分组](./examples/04_version_grouping/main.go) - 如何对版本进行分组管理
+- [版本范围查询](./examples/05_version_range_queries/main.go) - 如何查询特定版本范围
+- [版本可视化](./examples/06_version_visualization/main.go) - 如何可视化版本结构
 
-#### VisualizeVersionGroups
-- **描述**: 可视化版本组之间的层次关系，以树状结构展示版本组织架构。
-- **参数**:
-  - `versions []*Version`: 要可视化的版本集合。
-  - `w io.Writer`: 输出写入的目标。
-- **返回值**: 无直接返回值，结果写入指定的writer。
+## ⚠️ 注意事项
 
-**示例代码**:
-```go
-versions, _ := versions.ReadVersionsFromFile("path/to/versions.txt")
-versions.VisualizeVersionGroups(versions, os.Stdout)
-```
+- 确保传入的文件路径正确，且文件格式符合要求
+- 版本号的解析和比较依赖于正确的格式，非标准格式可能会导致解析错误
+- 时间比较依赖于 `PublicTime` 被正确设置
+- 对于非标准格式的版本号可能需要额外的处理
 
-**输出示例**:
-```
-版本总数: 15
-版本组数: 6
+## 📄 许可证
 
-├─ 1 (1个版本)
-│ ├─ 1.0 (3个版本)
-│ └─ 1.1 (2个版本)
-└─ 2 (2个版本)
-  ├─ 2.0 (4个版本)
-  └─ 2.1 (3个版本)
-```
-
-### 4. 注意事项
-- 确保传入的文件路径正确，且文件格式符合要求。
-- 版本号的解析和比较依赖于正确的格式，非标准格式可能会导致解析错误。
-- 时间比较依赖于 `PublicTime` 被正确设置。
-
-### 5. 错误处理
-每个函数都可能返回一个错误值，调用时应该检查并妥善处理这些错误。
-
-### 6. 版本兼容性
-该库设计为兼容Go语言的标准版本号格式，对于非标准格式的版本号可能需要额外的处理。
-
-这个API文档提供了`versions`包的基本使用方法和函数描述，包括详细的代码示例，帮助开发者理解和使用这个版本号处理库。
+本项目采用 MIT 许可证 - 详见 [LICENSE](./LICENSE) 文件。
