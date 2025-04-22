@@ -81,14 +81,6 @@
 go get -u github.com/scagogogo/versions
 ```
 
-<details open>
-<summary>需要特定版本？</summary>
-
-```bash
-go get -u github.com/scagogogo/versions@v1.0.0  # 指定版本
-```
-</details>
-
 ---
 
 ## 🚀 快速开始
