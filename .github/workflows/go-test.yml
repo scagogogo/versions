@@ -8,8 +8,8 @@ on:
   workflow_dispatch:  # 允许手动触发
 
 jobs:
-  test:
-    name: Run Tests
+  unit-test:
+    name: 单元测试
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -21,21 +21,61 @@ jobs:
           go-version: '1.20'
           check-latest: true
 
-      - name: Test
+      - name: 执行单元测试
         run: go test -v ./...
 
-      - name: Test Coverage
+  coverage:
+    name: 覆盖率分析
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+          check-latest: true
+
+      - name: 生成测试覆盖率报告
         run: |
           go test -coverprofile=coverage.out ./...
-          go tool cover -func=coverage.out 
+          go tool cover -func=coverage.out
+
+  examples:
+    name: 示例代码验证
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+          check-latest: true
           
-      - name: Run Examples
+      - name: 运行示例代码
         run: |
           echo "运行所有示例代码..."
           # 查找并运行所有示例目录中的main.go文件
           for example_dir in examples/*/; do
             if [ -f "${example_dir}main.go" ]; then
+              echo "========================================"
               echo "运行示例: ${example_dir}"
+              echo "========================================"
               go run ${example_dir}main.go
+              
+              # 检查运行结果
+              if [ $? -ne 0 ]; then
+                echo "❌ 示例运行失败: ${example_dir}"
+                exit 1
+              else
+                echo "✅ 示例运行成功: ${example_dir}"
+              fi
+              echo ""
             fi
-          done 
+          done
+          echo "所有示例运行完成！" 
