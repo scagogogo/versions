@@ -265,6 +265,502 @@ versions.VisualizeVersionGroups(versionList, os.Stdout)
 
 ---
 
+## 🧩 完整API文档
+
+<div align="center">
+<h3>核心类型与功能详解</h3>
+</div>
+
+### Version 类型
+
+<details open>
+<summary><b>结构定义</b></summary>
+
+```go
+type Version struct {
+    // 原始版本号字符串
+    Raw string
+    
+    // 版本发布时间
+    PublicTime time.Time
+    
+    // 版本号数字部分，例如 1.2.3 中的 [1,2,3]
+    VersionNumbers VersionNumbers
+    
+    // 版本号前缀，例如 v1.2.3 中的 "v"
+    Prefix VersionPrefix
+    
+    // 版本号后缀，例如 1.2.3-beta 中的 "-beta"
+    Suffix VersionSuffix
+}
+```
+</details>
+
+<details>
+<summary><b>NewVersion</b> - 创建版本号对象</summary>
+
+```go
+func NewVersion(versionString string) *Version
+```
+
+**参数:**
+- `versionString string`: 版本号字符串，如 "1.2.3", "v1.0.0-beta" 等
+
+**返回值:**
+- `*Version`: 解析后的版本对象
+
+**示例:**
+```go
+version := versions.NewVersion("v1.2.3-rc1")
+fmt.Printf("前缀: %s, 版本号: %v, 后缀: %s\n", 
+    version.Prefix, version.VersionNumbers, version.Suffix)
+// 输出: 前缀: v, 版本号: [1 2 3], 后缀: -rc1
+```
+</details>
+
+<details>
+<summary><b>NewVersionE</b> - 创建版本号对象（带错误返回）</summary>
+
+```go
+func NewVersionE(versionString string) (*Version, error)
+```
+
+**参数:**
+- `versionString string`: 版本号字符串
+
+**返回值:**
+- `*Version`: 解析后的版本对象
+- `error`: 解析过程中可能发生的错误
+
+**示例:**
+```go
+version, err := versions.NewVersionE("v1.2.3-rc1")
+if err != nil {
+    log.Fatalf("版本号解析失败: %v", err)
+}
+```
+</details>
+
+<details>
+<summary><b>IsValid</b> - 检查版本号是否有效</summary>
+
+```go
+func (v *Version) IsValid() bool
+```
+
+**返回值:**
+- `bool`: 版本号是否有效，必须至少包含一个版本数字
+
+**示例:**
+```go
+version := versions.NewVersion("v1.2.3")
+if version.IsValid() {
+    fmt.Println("版本号有效")
+}
+```
+</details>
+
+<details>
+<summary><b>CompareTo</b> - 比较两个版本号</summary>
+
+```go
+func (v *Version) CompareTo(other *Version) int
+```
+
+**参数:**
+- `other *Version`: 要比较的另一个版本对象
+
+**返回值:**
+- `int`: 小于0表示当前版本小于other，等于0表示相等，大于0表示当前版本大于other
+
+**示例:**
+```go
+v1 := versions.NewVersion("1.2.3")
+v2 := versions.NewVersion("1.3.0")
+result := v1.CompareTo(v2)
+if result < 0 {
+    fmt.Printf("%s 小于 %s\n", v1.Raw, v2.Raw)
+}
+```
+</details>
+
+<details>
+<summary><b>String</b> - 获取版本号字符串表示</summary>
+
+```go
+func (v *Version) String() string
+```
+
+**返回值:**
+- `string`: 版本号的字符串表示，通常等同于原始版本号
+
+**示例:**
+```go
+version := versions.NewVersion("v1.2.3")
+fmt.Println(version.String()) // 输出: v1.2.3
+```
+</details>
+
+### VersionNumbers 类型
+
+<details>
+<summary><b>结构定义与方法</b></summary>
+
+```go
+// VersionNumbers 是整数切片，表示版本号的数字部分
+type VersionNumbers []int
+
+// 获取主版本号
+func (v VersionNumbers) MajorVersion() int
+
+// 获取次版本号
+func (v VersionNumbers) MinorVersion() int
+
+// 获取修订版本号
+func (v VersionNumbers) PatchVersion() int
+
+// 比较两个版本号数字部分
+func (v VersionNumbers) CompareTo(other VersionNumbers) int
+```
+
+**示例:**
+```go
+version := versions.NewVersion("1.2.3")
+major := version.VersionNumbers.MajorVersion() // 返回 1
+minor := version.VersionNumbers.MinorVersion() // 返回 2
+patch := version.VersionNumbers.PatchVersion() // 返回 3
+```
+</details>
+
+### VersionPrefix 类型
+
+<details>
+<summary><b>结构定义与方法</b></summary>
+
+```go
+// VersionPrefix 是字符串，表示版本号前缀
+type VersionPrefix string
+
+// 检查前缀是否为空
+func (v VersionPrefix) IsEmpty() bool
+
+// 比较两个前缀
+func (v VersionPrefix) CompareTo(other VersionPrefix) int
+```
+
+**示例:**
+```go
+version := versions.NewVersion("v1.2.3")
+if !version.Prefix.IsEmpty() {
+    fmt.Printf("版本前缀: %s\n", version.Prefix) // 输出: 版本前缀: v
+}
+```
+</details>
+
+### VersionSuffix 类型
+
+<details>
+<summary><b>结构定义与方法</b></summary>
+
+```go
+// VersionSuffix 是字符串，表示版本号后缀
+type VersionSuffix string
+
+// 检查后缀是否为空
+func (v VersionSuffix) IsEmpty() bool
+
+// 比较两个后缀
+func (v VersionSuffix) CompareTo(other VersionSuffix) int
+```
+
+**示例:**
+```go
+version := versions.NewVersion("1.2.3-beta")
+if !version.Suffix.IsEmpty() {
+    fmt.Printf("版本后缀: %s\n", version.Suffix) // 输出: 版本后缀: -beta
+}
+```
+</details>
+
+### ContainsPolicy 类型
+
+<details>
+<summary><b>定义与常量</b></summary>
+
+```go
+// ContainsPolicy 用于控制版本范围查询时是否包含边界版本
+type ContainsPolicy int
+
+const (
+    // 未指定包含策略
+    ContainsPolicyNone ContainsPolicy = iota
+    
+    // 包含边界版本
+    ContainsPolicyYes
+    
+    // 不包含边界版本
+    ContainsPolicyNo
+)
+```
+
+**使用场景:**
+在范围查询中指定是否包含起始版本和结束版本，例如：
+- `[1.0.0, 2.0.0]` - 包含1.0.0和2.0.0
+- `(1.0.0, 2.0.0)` - 不包含1.0.0和2.0.0
+- `[1.0.0, 2.0.0)` - 包含1.0.0但不包含2.0.0
+</details>
+
+### VersionGroup 类型
+
+<details>
+<summary><b>结构定义与方法</b></summary>
+
+```go
+// VersionGroup 表示具有相同主版本号的一组版本
+type VersionGroup struct {
+    // ...内部字段
+}
+
+// 创建新的版本组
+func NewVersionGroup(id string) *VersionGroup
+
+// 添加版本到组中
+func (g *VersionGroup) Add(version *Version)
+
+// 检查组是否包含某个版本
+func (g *VersionGroup) Contains(version *Version) bool
+
+// 获取组ID
+func (g *VersionGroup) ID() string
+
+// 获取组中的所有版本
+func (g *VersionGroup) Versions() []*Version
+
+// 获取组中版本的数量
+func (g *VersionGroup) Count() int
+
+// 按版本号排序组内的版本
+func (g *VersionGroup) SortVersions() []*Version
+
+// 查询范围内的版本
+func (g *VersionGroup) QueryRangeVersions(start, end *Version) []*Version
+```
+
+**示例:**
+```go
+// 创建版本组
+group := versions.NewVersionGroup("1")
+
+// 添加版本
+group.Add(versions.NewVersion("1.0.0"))
+group.Add(versions.NewVersion("1.1.0"))
+group.Add(versions.NewVersion("1.2.0"))
+
+// 获取组内所有版本
+allVersions := group.Versions()
+fmt.Printf("版本组 %s 包含 %d 个版本\n", group.ID(), group.Count())
+
+// 排序组内版本
+sortedVersions := group.SortVersions()
+```
+</details>
+
+### SortedVersionGroups 类型
+
+<details>
+<summary><b>结构定义与方法</b></summary>
+
+```go
+// SortedVersionGroups 表示一组有序的版本组
+type SortedVersionGroups struct {
+    // ...内部字段
+}
+
+// 创建新的有序版本组
+func NewSortedVersionGroups(versions []*Version) *SortedVersionGroups
+
+// 获取所有版本组ID
+func (s *SortedVersionGroups) GroupIDs() []string
+
+// 查询指定范围内的版本
+func (s *SortedVersionGroups) QueryRange(
+    start *tuple.Tuple2[*Version, ContainsPolicy],
+    end *tuple.Tuple2[*Version, ContainsPolicy],
+) []*Version
+```
+
+**示例:**
+```go
+// 创建测试版本列表
+versions := []*versions.Version{
+    versions.NewVersion("1.0.0"),
+    versions.NewVersion("1.1.0"),
+    versions.NewVersion("2.0.0"),
+    versions.NewVersion("2.1.0"),
+    versions.NewVersion("3.0.0"),
+}
+
+// 创建有序版本组
+sortedGroups := versions.NewSortedVersionGroups(versions)
+
+// 获取所有组ID
+groupIDs := sortedGroups.GroupIDs()
+fmt.Printf("共有 %d 个版本组: %v\n", len(groupIDs), groupIDs)
+
+// 执行范围查询：获取1.0.0（包含）到2.0.0（不包含）之间的所有版本
+startVersion := versions.NewVersion("1.0.0")
+endVersion := versions.NewVersion("2.0.0")
+startTuple := tuple.New2[*versions.Version, versions.ContainsPolicy](
+    startVersion, versions.ContainsPolicyYes)
+endTuple := tuple.New2[*versions.Version, versions.ContainsPolicy](
+    endVersion, versions.ContainsPolicyNo)
+    
+result := sortedGroups.QueryRange(startTuple, endTuple)
+fmt.Printf("查询结果包含 %d 个版本\n", len(result))
+```
+</details>
+
+### 文件操作函数
+
+<details>
+<summary><b>从文件读取版本号</b></summary>
+
+```go
+// 读取文件中的版本号字符串
+func ReadVersionsStringFromFile(filepath string) ([]string, error)
+
+// 读取并解析文件中的版本号
+func ReadVersionsFromFile(filepath string) ([]*Version, error)
+```
+
+**参数:**
+- `filepath string`: 文件路径，文件中每行应包含一个版本号
+
+**返回值:**
+- `[]string` 或 `[]*Version`: 版本号字符串或版本对象切片
+- `error`: 读取过程中可能发生的错误
+
+**示例:**
+```go
+// 从文件读取版本号字符串
+versionStrings, err := versions.ReadVersionsStringFromFile("versions.txt")
+if err != nil {
+    log.Fatalf("读取版本号失败: %v", err)
+}
+
+// 从文件读取并解析版本号
+versionObjects, err := versions.ReadVersionsFromFile("versions.txt")
+if err != nil {
+    log.Fatalf("解析版本号失败: %v", err)
+}
+```
+</details>
+
+### 排序函数
+
+<details>
+<summary><b>版本排序函数</b></summary>
+
+```go
+// 对版本字符串切片进行排序
+func SortVersionStringSlice(versionStringSlice []string) []string
+
+// 对版本对象切片进行排序
+func SortVersionSlice(versions []*Version) []*Version
+```
+
+**参数:**
+- `versionStringSlice []string` 或 `versions []*Version`: 要排序的版本号切片
+
+**返回值:**
+- `[]string` 或 `[]*Version`: 排序后的版本号切片
+
+**示例:**
+```go
+// 排序版本号字符串
+unsortedStrings := []string{"2.0.0", "1.0.0", "1.10.0", "1.2.0"}
+sortedStrings := versions.SortVersionStringSlice(unsortedStrings)
+// 结果: ["1.0.0", "1.2.0", "1.10.0", "2.0.0"]
+
+// 排序版本对象
+unsortedVersions := []*versions.Version{
+    versions.NewVersion("2.0.0"),
+    versions.NewVersion("1.0.0"),
+    versions.NewVersion("1.10.0"),
+}
+sortedVersions := versions.SortVersionSlice(unsortedVersions)
+```
+</details>
+
+### 分组函数
+
+<details>
+<summary><b>版本分组函数</b></summary>
+
+```go
+// 将版本列表按主版本号分组
+func Group(versions []*Version) map[string]*VersionGroup
+```
+
+**参数:**
+- `versions []*Version`: 要分组的版本对象列表
+
+**返回值:**
+- `map[string]*VersionGroup`: 以组ID为键的版本组映射
+
+**示例:**
+```go
+// 创建版本列表
+versionList := []*versions.Version{
+    versions.NewVersion("1.0.0"),
+    versions.NewVersion("1.1.0"),
+    versions.NewVersion("2.0.0"),
+    versions.NewVersion("2.1.0"),
+}
+
+// 按主版本号分组
+groupMap := versions.Group(versionList)
+
+// 遍历分组结果
+for groupID, group := range groupMap {
+    fmt.Printf("版本组 %s 包含 %d 个版本:\n", groupID, group.Count())
+    for _, v := range group.Versions() {
+        fmt.Printf("  - %s\n", v.Raw)
+    }
+}
+```
+</details>
+
+### 可视化函数
+
+<details>
+<summary><b>版本可视化函数</b></summary>
+
+```go
+// 以文本树形式可视化版本结构
+func VisualizeVersions(versions []*Version, w io.Writer, maxItemsPerGroup int)
+
+// 以文本树形式可视化版本组层次结构
+func VisualizeVersionGroups(versions []*Version, w io.Writer)
+```
+
+**参数:**
+- `versions []*Version`: 要可视化的版本对象列表
+- `w io.Writer`: 输出写入目标，通常是 `os.Stdout`
+- `maxItemsPerGroup int`: 每组最多显示的版本数量，0表示不限制
+
+**示例:**
+```go
+// 可视化版本结构
+versions.VisualizeVersions(versionList, os.Stdout, 0)
+
+// 可视化版本组层次结构
+versions.VisualizeVersionGroups(versionList, os.Stdout)
+```
+</details>
+
+---
+
 ## 🔍 使用示例
 
 <div align="center">
