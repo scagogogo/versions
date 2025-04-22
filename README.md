@@ -312,6 +312,6 @@ versions.VisualizeVersionGroups(versionList, os.Stdout)
   
 本项目采用 [MIT 许可证](./LICENSE) - 详见 LICENSE 文件
 
-<b>Copyright © 2023 scagogogo</b>
+<b>Copyright © 2023-2025 scagogogo</b>
 
 </div>
