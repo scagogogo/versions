@@ -81,7 +81,7 @@
 go get -u github.com/scagogogo/versions
 ```
 
-<details>
+<details open>
 <summary>需要特定版本？</summary>
 
 ```bash
@@ -130,7 +130,7 @@ func main() {
 }
 ```
 
-<details>
+<details open>
 <summary>查看输出结果</summary>
 
 ```
@@ -296,7 +296,7 @@ type Version struct {
 ```
 </details>
 
-<details>
+<details open>
 <summary><b>NewVersion</b> - 创建版本号对象</summary>
 
 ```go
@@ -318,7 +318,7 @@ fmt.Printf("前缀: %s, 版本号: %v, 后缀: %s\n",
 ```
 </details>
 
-<details>
+<details open>
 <summary><b>NewVersionE</b> - 创建版本号对象（带错误返回）</summary>
 
 ```go
@@ -341,7 +341,7 @@ if err != nil {
 ```
 </details>
 
-<details>
+<details open>
 <summary><b>IsValid</b> - 检查版本号是否有效</summary>
 
 ```go
@@ -360,7 +360,7 @@ if version.IsValid() {
 ```
 </details>
 
-<details>
+<details open>
 <summary><b>CompareTo</b> - 比较两个版本号</summary>
 
 ```go
@@ -384,7 +384,7 @@ if result < 0 {
 ```
 </details>
 
-<details>
+<details open>
 <summary><b>String</b> - 获取版本号字符串表示</summary>
 
 ```go
@@ -403,7 +403,7 @@ fmt.Println(version.String()) // 输出: v1.2.3
 
 ### VersionNumbers 类型
 
-<details>
+<details open>
 <summary><b>结构定义与方法</b></summary>
 
 ```go
@@ -434,7 +434,7 @@ patch := version.VersionNumbers.PatchVersion() // 返回 3
 
 ### VersionPrefix 类型
 
-<details>
+<details open>
 <summary><b>结构定义与方法</b></summary>
 
 ```go
@@ -459,7 +459,7 @@ if !version.Prefix.IsEmpty() {
 
 ### VersionSuffix 类型
 
-<details>
+<details open>
 <summary><b>结构定义与方法</b></summary>
 
 ```go
@@ -484,7 +484,7 @@ if !version.Suffix.IsEmpty() {
 
 ### ContainsPolicy 类型
 
-<details>
+<details open>
 <summary><b>定义与常量</b></summary>
 
 ```go
@@ -512,7 +512,7 @@ const (
 
 ### VersionGroup 类型
 
-<details>
+<details open>
 <summary><b>结构定义与方法</b></summary>
 
 ```go
@@ -567,7 +567,7 @@ sortedVersions := group.SortVersions()
 
 ### SortedVersionGroups 类型
 
-<details>
+<details open>
 <summary><b>结构定义与方法</b></summary>
 
 ```go
@@ -622,7 +622,7 @@ fmt.Printf("查询结果包含 %d 个版本\n", len(result))
 
 ### 文件操作函数
 
-<details>
+<details open>
 <summary><b>从文件读取版本号</b></summary>
 
 ```go
@@ -658,7 +658,7 @@ if err != nil {
 
 ### 排序函数
 
-<details>
+<details open>
 <summary><b>版本排序函数</b></summary>
 
 ```go
@@ -694,7 +694,7 @@ sortedVersions := versions.SortVersionSlice(unsortedVersions)
 
 ### 分组函数
 
-<details>
+<details open>
 <summary><b>版本分组函数</b></summary>
 
 ```go
@@ -733,7 +733,7 @@ for groupID, group := range groupMap {
 
 ### 可视化函数
 
-<details>
+<details open>
 <summary><b>版本可视化函数</b></summary>
 
 ```go
